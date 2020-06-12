@@ -4,7 +4,7 @@
 
 void wifiSetup()
 {
-  const char *ssid = "Genrat Wifi";
+  const char *ssid = "Gen Wifi";
   const char *password = "12345678";
   Serial.print("Setting soft access point mode");
   WiFi.mode(WIFI_AP);

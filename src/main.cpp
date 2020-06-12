@@ -1,11 +1,14 @@
 #include <WiFi.h>
-#include "helper.h"
+#include "globals.h"
 #include "wifi_setup.h"
-#include "engine_control.h"
-#include "getState.h"
+#include "voltage_reader.h"
+#include "engine_stat_stop.h"
+#include "pin_handlers.h"
+#include "automatic.h"
 #include "server.h"
 
 
+//dsad
 WiFiServer server(80);
 
 void setup()
@@ -22,7 +25,19 @@ void setup()
 void loop()
 {
 
-  automatic(automaticStartEnabled);
+  
+  pinHandler(startPin,startPinTrunedONAt,startPinTrunedOFFAt);
+  pinHandler(stopPin,stopPinTunredONAt,stopPinTunredOFFAt);
+
+  voltagePinHandler(wapdaPin,wapdaTunredONAt,wapdaTunredOFFAt);
+  voltagePinHandler(genratorPin,genratorTrunedONAt,genratorTrunedOFFAt);
+
+  //    Serial.println("startPin");
+  // Serial.println(startPinTrunedONAt);
+
+ 
+   automatic();
+
 
   WiFiClient client = server.available();
   if (client)

@@ -1,4 +1,4 @@
-bool automaticStartEnabled = false;
+
 
 
 void serverGen(WiFiClient client)
@@ -8,12 +8,21 @@ void serverGen(WiFiClient client)
 
     if (request.indexOf("/start") != -1)
     {
-        maybeStartGenrator();
+        bool starting = (digitalRead(startPin) == 0) ? true : false;
+        bool wapdaON = (readVoltage(wapdaPin) > voltageT) ? true : false;
+        bool genON = (readVoltage(genratorPin) > voltageT) ? true : false;
+        bool anyLight = (wapdaON == true || genON == true);
+
+        if(starting == false and anyLight == false){
+        startGenrator();
         html = "{\"status\":1,\"msg\":\"Starting\"}";
+        }else{
+            html = "{\"status\":1,\"msg\":\" can not start\"}"; 
+        }
     }
     else if (request.indexOf("/stop") != -1)
     {
-        maybeStopEngine();
+        stopEngine();
         html = "{\"status\":1,\"msg\":\"Stoping\"}";
     }
     else if (request.indexOf("/auto0") != -1)
@@ -28,15 +37,18 @@ void serverGen(WiFiClient client)
     }
     else if (request.indexOf("/read") != -1)
     {
-        float wpda = readVoltage(wapdaInput);
-        float genrator = readVoltage(genratorInput);
-        int startPin = readStartPin();
-        int stopPin = readStopPin();
+        unsigned long timeNow = millis();
+        float genratorTime = (genratorTrunedONAt != 0) ?   (timeNow - genratorTrunedONAt) / 1000 : 0;
+        float wapdaTime = (wapdaTunredONAt != 0) ?  (timeNow - wapdaTunredONAt) / 1000 : 0;
+    
         html = "{\"status\":1,\"light\":";
-        html = html + wpda + ",";
-        html = html + "\"genrator\":" + genrator + ",";
-        html = html + "\"startPin\":" + startPin + ",";
-        html = html + "\"stopPin\":" + stopPin + ",";
+        html = html + wapdaTime + ",";
+        html = html + "\"genrator\":" + genratorTime + ",";
+
+        html = html + "\"genrator Volts\":" + readVoltage(genratorPin) + ",";
+        html = html + "\"Wapda Volts\":" + readVoltage(wapdaPin) + ",";
+        html = html + "\"startPin\":" + digitalRead(startPin)  + ",";
+        html = html + "\"stopPin\":" + digitalRead(stopPin) + ",";
         html = html + "\"automaticStartEnabled\":" + automaticStartEnabled;
         html = html + "}";
     }
